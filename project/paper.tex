@@ -1,0 +1,146 @@
+\documentclass[12pt]{article}
+
+% This first part of the file is called the PREAMBLE. It includes
+% customizations and command definitions. The preamble is everything
+% between \documentclass and \begin{document}.
+
+\usepackage[margin=1in]{geometry}  % set the margins to 1in on all sides
+\usepackage{graphicx}              % to include figures
+\usepackage{amsmath,bm}            % great math stuff
+\usepackage{amsfonts}              % for blackboard bold, etc
+\usepackage{amsthm}                % better theorem environments
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage[linesnumbered,ruled,vlined,algosection]{algorithm2e}
+\usepackage{parskip} 			   % no paragraph indentation
+
+\usetikzlibrary{arrows,automata}
+
+\input{include/Walgo.tex}
+
+
+% various theorems, numbered by section
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{conj}[thm]{Conjecture}
+\newtheorem{defi}[thm]{Definition}
+
+\DeclareMathOperator{\id}{id}
+
+\newcommand{\bd}[1]{\mathbf{#1}}  % for bolding symbols
+\newcommand{\RR}{\mathbb{R}}      % for Real numbers
+\newcommand{\ZZ}{\mathbb{Z}}      % for Integers
+\newcommand{\col}[1]{\left[\begin{matrix} #1 \end{matrix} \right]}
+\newcommand{\comb}[2]{\binom{#1^2 + #2^2}{#1+#2}}
+
+\lstset{ % General setup for the package
+    language={[LaTeX]TeX},
+    basicstyle=\footnotesize\sffamily,
+    tabsize=4,
+    columns=fixed,
+    keepspaces,
+    commentstyle=\color{red},
+    keywordstyle=\color{blue},
+    xleftmargin=.1\textwidth,
+    xrightmargin=.1\textwidth
+}
+
+\begin{document}
+
+\nocite{*}
+
+
+\title{Topics in Algorithms}
+
+\author{Viktor Hansen \& Mehdi Nadif}
+
+\maketitle
+
+\begin{abstract}
+  This comprises our project covering Approximation Distance Oracles with Improved Query Time for the Topics in Algorithms course offered at The Department of Computer Science, Uni. Copenhagen.
+\end{abstract}
+
+\pagebreak
+
+\section{Overview}
+Given an undirected, positively weighted graph $G$ with $m$ edges, $n$ vertices and given $k \in \mathbb{Z}$, $k \geq 2$, we show that a $2k-1$ approximate distance oracle for $G$ of size $O(kn^{1+1/k})$ and with $O(\lg k)$ query time can be constructed in $O( \min \left\{ kmn^{1/k}, \sqrt{k}m+kn^{1+c/\sqrt{k}} \right\})$ time for some constant $c$.
+
+
+\section{Preliminaries}
+\begin{itemize}
+\item $d_{G}(u,v)$: the shortest path distance between $u$ and $v$.
+\item $A_i = \left\{ a \in A_{i-1} \; | \; a \text{ sampled with prob. } n^{-1/k} \text{ uniformly, i.i.d.} \right\}$
+\item $V = A_0 \supseteq A_1 \supseteq \hdots \supseteq A_k = \emptyset$
+\item $p_i(u) = \min_{v \in A_i} \left\{ d_{G}(u,v) \right\}$
+\item $B_u=\bigcup_{i=0}^{k-1}\left\{ v \in A_i - A_{i+1} \; | \; d_{G}(u,v) < d_{G}(u, p_{i+1}(u)) \right\}$
+\item $d_G(u,p_k(u))=\infty$
+\end{itemize}
+
+\begin{lem}
+Let $u,v \in V$ be distinct vertices $0 \leq i < k-1$. If $p_i(v) \not\in B_{u}$ then $d_G(u, p_{i+1}(u)) \leq d_G(u, p_i(v))$. Furthermore $A_{k-1} \subset B_u$ and $p_{k-1}(v) \in B_u$. \label{lem:onedeltaperiteration}
+\end{lem}
+
+\section{Oracle with $O(\lg k)$ query time}
+\begin{Walgo}[ht]{20pt}
+  \DontPrintSemicolon
+  \SetKwRepeat{Do}{do}{while}
+  \SetKwInOut{Input}{Input}
+  \SetKwInOut{Output}{Output}
+  \Indm
+    \Indp
+    \BlankLine
+    $w \leftarrow p_i(u); j \leftarrow i$
+    
+    \While{$w \not\in B_v$}{
+      $j \leftarrow j + 1$
+      
+      $(u,v) \leftarrow (v,u)$
+      
+      $w \leftarrow p_j(u)$
+    }
+    \Return{$d_G(w,u) + d_G(w,v)$}
+    
+    \caption{$dist_k(u,v,i)$}
+    \label{alg:0.1}
+\end{Walgo}
+
+\begin{defi}
+For vertices $u,v \in V$ an index $j \in \mathcal{I}$ is $(u,v)$-terminal if
+\begin{enumerate}
+\item $j = k-1$ or
+\item $j < k-1$ is even and $p_j(u) \in B_v$ or $p_{j+1}(v) \in B_u$ 
+\end{enumerate}
+We note that $j$ attains a $(u,v)$ terminal index, the algorithm terminates in the current or next iteration.
+\end{defi}
+
+\begin{defi}
+A subsequence $\mathcal{I'}=i_1, \hdots, i_2$ of $\mathcal{I}$ is $(u,v)$-feasible if
+\begin{enumerate}
+\item $i_1$ is even and
+\item $d_{G}(p_{i_1}(u),u) \leq i_1 \cdot d_G(u,v)$ and
+\item $i_2$ is $(u,v)$-terminal
+\end{enumerate}
+\end{defi}
+
+\begin{lem}
+Let $i_1, \hdots, i_2$ be a $(u,v)$-feasible subsequence. Then $dist_k(u,v,i_1)$ gives a $2k-1$ approximation of $d_G(u,v)$ in time $O(i_2-i_1)$.
+\paragraph{Proof} By assumption $i_2$ is $(u,v)$-terminal. Therefore, $p_{i_2}(u) \in B_v$ or $p_{i_2 + 1}(v) \in B_u$. Thus $dist_k(u,v,i_1)$ terminates when $j=O(i_2)$ in time $O(i_2-i_1)$.
+
+Furthermore $d_{G}(p_{i_1}(u),u) \leq i_1 \cdot d_G(u,v)$. When $p_j(u) = w \not\in B_v$
+we have $d_G(v,p_{j+1}(v)) \leq d_G(v,p_{j}(u)) \leq d_G(v,u) + d_G(u,p_j(u))$ by Lemma \ref{lem:onedeltaperiteration} and the triangle inequality. Hence each iteration of $dist_k(u,v,i)$ increases $d_G(u,w)$ by at most $d_G(u,v)$. At termination we have
+\begin{align*}
+d_G(u,w) + d_G(w,v) &\leq 2d_G(u,w) + d_G(u,v) \\
+&\leq 2(i_1 \cdot d_G(u,v) + (i_2 - i_1)d_G(u,v)) + d_G(u,v) \\
+&\leq 2 \cdot i_2 \cdot d_G(u,v) + d_G(u,v) \\
+&\leq (2 \cdot i_2 + 1)d_G(u,v) \\
+&\leq (2 (k-1) + 1)d_G(u,v) \\
+&\leq (2k-1) d_G(u,v)
+\end{align*}
+\end{lem}
+
+
+\end{document}
