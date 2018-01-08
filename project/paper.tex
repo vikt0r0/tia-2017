@@ -153,5 +153,26 @@ d_G(u,w) + d_G(w,v) &\leq 2d_G(u,w) + d_G(u,v) \\
 
 % Lemma 3.3 her - "skip hver anden" - gør analysen symmetrisk - lav illustration (projicer punkter ned på reelle akse og indtegn afstande). Forklar bevis.
 
+\begin{lem}
+Let $i_1, \hdots, i_2$ be a $(u,v)$-feasible subsequence and let $i$ be even, $i_1+2 \leq i \leq i_2-2$. Let $j$ be an even index in subsequence $i_1, \hdots ,i-2$ that maximizes $\delta_j(u)$. If $p_j(u) \not\in B_v$ and $p_j+1(v) \not\in B_u$ then $i, \hdots , i_2$ is $(u,v)$-feasible. Otherwise, $i_1, \hdots , j$ is $(u,v)$-feasible.
+
+\paragraph{Proof} If $p_j(u) \in B_v$ or $p_j+1(v) \in B_u$, then $j$ is $(u,v)$-feasible, and so is $i_1, \hdots, j$. Assume that $p_j(u) \not\in B_v$ and $p_j+1(v) \not\in B_u$. Then, by Lemma \ref{lem:lemma1}, $d_G(v,p_{j+1}(v)) \leq d_G(v,p_{j}(u))$ and $d_G(u,p_{j+2}(u)) \leq d_G(u,p_{j+1(v)})$. Applying the triangle inequality twice, we get 
+\begin{align*}
+d_G(u,p_{j+2}(u) &\leq d_G(u,p_{j+1}(v)) \\
+&\leq d_G(u,v) + d_G(v, p_{j+1}(v)) \\
+&\leq d_G(u,v) + d_G(v, p_{j}(u)) \\
+&\leq 2d_G(u,v) + d_G(u, p_{j}(u))
+\end{align*}
+so $\delta_j(u) = d_G(u,p_{j+2}(u)) - d_G(u,p_j(u)) \leq 2d_G(u,v)$. Let $\mathcal{I}'$ be the set of even indices $i_1, i_1+2, i_1+4, \hdots, i-2$. Since $i_1, \hdots, i_2$ is $(u,v)$-feasible, $d_G(u,p_{i_1}(u)) \leq i_1 \cdot d_G(u,v)$. By the choice of $j$,
+\begin{align*}
+d_G(u,p_{i}(u)) &= d_G(u,p_{i_1}(u)) + \sum_{j' \in \mathcal{I'}}\delta_{j'}(u) \\
+&\leq d_G(u,p_{i_1}(u)) + \left| \mathcal{I'} \right| \max_{j' \in \mathcal{I'}}\delta_{j'}(u) \\
+&= d_G(u,p_{i_1}(u)) + \frac{i-i_1}{2} \delta_{j}(u) \\
+&\leq i_1 \cdot d_G(u,v) + (i-i_1)d_G(u,v) \\
+&= i \cdot d_G(u,v)
+\end{align*}
+Hence, since $i_1, \hdots, i_2$ is $(u,v)$-feasible, so is $i, \hdots, i_2$.
+\end{lem}
+
 
 \end{document}
