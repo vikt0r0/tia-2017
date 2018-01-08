@@ -69,13 +69,30 @@
 \section{Overview}
 % Assumptions about the reader
 
+\begin{figure}
+\begin{tikzpicture}
+\filldraw (0,0) circle (2pt) node[align=left,   below] {$u$};
+\filldraw (10,0) circle (2pt) node[align=right,  below] {$v$};
+\filldraw[fill=gray] (4,3) circle (2pt) node[align=left, above] {$p_j(u)$};
+\filldraw[fill=gray] (8,3.5) circle (2pt) node[align=left, above] {$p_{j+1}(v)$};
+\coordinate (u) at (0,0) ;
+\coordinate (v) at (10,0);
+\coordinate (pu) at (4,3);
+\coordinate (pv) at (8, 3.5);
+\draw[dashed] (v) circle [radius=4];
+\draw (u) -- (pu) node[pos=0.5, above, sloped] {$d_G(u,p_j(u))$};
+\draw (u) -- (v) node[pos=0.5, below, sloped] {$d_G(u,v))$};
+\draw (v) -- (pv);
+\end{tikzpicture}
+\caption{Lorem Ipsumthing}
+\end{figure}
 % Reference til Mikkel/Zwick paper - hans query time og 'vores' forbedrede query time - forbedring af konstruktion. Forbedring i querytime, uden at det påvirker space/konstruktionstid.
 
 % Motivation
 
 % Girth Conjecture?
 
-Given an undirected, positively weighted graph $G$ with $m$ edges, $n$ vertices and given $k \in \mathbb{Z}$, $k \geq 2$, we show that a $2k-1$ approximate distance oracle for $G$ of size $O(kn^{1+1/k})$ and with $O(\lg k)$ query time can be constructed in $O( \min \left\{ kmn^{1/k}, \sqrt{k}m+kn^{1+c/\sqrt{k}} \right\})$ time for some constant $c$.
+Given an undirected, positively weighted graph $G$ with $m$ edges, $n$ vertices and given $k \in \mathbb{Z}$, $k \geq 2$, we show that a $2k-1$ approximate distance oracle for $G$ of size $O(kn^{1+1/k})$ and with $O(\lg k)$ query time can be constructed in $O( \min \left\{ kmn^{1/k}, \sqrt{k}m+kn^{1+c/\sqrt{k}} \right\})$ time for some constant $c$.
 % Definitioner
 \begin{itemize}
 \item $d_{G}(u,v)$: the shortest path distance between $u$ and $v$.
