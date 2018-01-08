@@ -67,10 +67,16 @@
 \pagebreak
 
 \section{Overview}
+% Assumptions about the reader
+
+% Reference til Mikkel/Zwick paper - hans query time og 'vores' forbedrede query time - forbedring af konstruktion. Forbedring i querytime, uden at det påvirker space/konstruktionstid.
+
+% Motivation
+
+% Girth Conjecture?
+
 Given an undirected, positively weighted graph $G$ with $m$ edges, $n$ vertices and given $k \in \mathbb{Z}$, $k \geq 2$, we show that a $2k-1$ approximate distance oracle for $G$ of size $O(kn^{1+1/k})$ and with $O(\lg k)$ query time can be constructed in $O( \min \left\{ kmn^{1/k}, \sqrt{k}m+kn^{1+c/\sqrt{k}} \right\})$ time for some constant $c$.
-
-
-\section{Preliminaries}
+% Definitioner
 \begin{itemize}
 \item $d_{G}(u,v)$: the shortest path distance between $u$ and $v$.
 \item $A_i = \left\{ a \in A_{i-1} \; | \; a \text{ sampled with prob. } n^{-1/k} \text{ uniformly, i.i.d.} \right\}$
@@ -141,6 +147,11 @@ d_G(u,w) + d_G(w,v) &\leq 2d_G(u,w) + d_G(u,v) \\
 &\leq (2k-1) d_G(u,v)
 \end{align*}
 \end{lem}
+% Inkluder illustration - forklarende tekst "By lemma 2.1 and the triangle inequality"
+
+% Lemma 3.2 her - Hele sekvensen, svarende til at køre Thorup-Zwick i=1...k
+
+% Lemma 3.3 her - "skip hver anden" - gør analysen symmetrisk - lav illustration (projicer punkter ned på reelle akse og indtegn afstande). Forklar bevis.
 
 
 \end{document}
