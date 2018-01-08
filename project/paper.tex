@@ -14,6 +14,7 @@
 \usepackage{tikz}
 \usepackage[linesnumbered,ruled,vlined,algosection]{algorithm2e}
 \usepackage{parskip} 			   % no paragraph indentation
+\usepackage{subcaption}
 
 \usetikzlibrary{arrows,automata}
 
@@ -70,21 +71,47 @@
 % Assumptions about the reader
 
 \begin{figure}
+\begin{subfigure}[b]{\textwidth}
 \begin{tikzpicture}
 \filldraw (0,0) circle (2pt) node[align=left,   below] {$u$};
 \filldraw (10,0) circle (2pt) node[align=right,  below] {$v$};
 \filldraw[fill=gray] (4,3) circle (2pt) node[align=left, above] {$p_j(u)$};
-\filldraw[fill=gray] (8,3.5) circle (2pt) node[align=left, above] {$p_{j+1}(v)$};
+\filldraw[fill=white] (8,3.45) circle (2pt) node[align=left, above] {$p_{j+1}(v)$};
 \coordinate (u) at (0,0) ;
 \coordinate (v) at (10,0);
 \coordinate (pu) at (4,3);
-\coordinate (pv) at (8, 3.5);
+\coordinate (pv) at (8, 3.45);
 \draw[dashed] (v) circle [radius=4];
 \draw (u) -- (pu) node[pos=0.5, above, sloped] {$d_G(u,p_j(u))$};
 \draw (u) -- (v) node[pos=0.5, below, sloped] {$d_G(u,v))$};
-\draw (v) -- (pv);
+\draw (v) -- (pv) node[pos=0.5, below, sloped] {$d_G(v, p_{j+1}(v)$};
+\draw[dotted] (v) -- (pu) node[pos=0.75, below, sloped] {$d_G(v, p_{j}(u)$};
 \end{tikzpicture}
-\caption{Lorem Ipsumthing}
+\caption{$(j)$th iteration\label{j1}}
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\begin{tikzpicture}
+\filldraw (0,0) circle (2pt) node[align=left,   below] {$v$};
+\filldraw (10,0) circle (2pt) node[align=right,  below] {$u$};
+\filldraw[fill={rgb:black,1;white,3}] (5,4.9) circle (2pt) node[align=left, above] {$p_{j+2}(v)$};
+\filldraw[fill=white] (8,3.45) circle (2pt) node[align=left, above] {$p_{j+1}(u)$};
+\coordinate (v) at (0,0) ;
+\coordinate (u) at (10,0);
+\coordinate (pv) at (5,4.9);
+\coordinate (pu) at (8, 3.45);
+\begin{scope}
+    \clip (0,6) rectangle (7,-1);
+    \draw[dashed] (v) circle [radius=7];
+\end{scope}
+
+\draw (v) -- (pv) node[pos=0.5, above, sloped] {$d_G(v,p_{j+2}(v))$};
+\draw (v) -- (u) node[pos=0.5, below, sloped] {$d_G(v,u))$};
+\draw (u) -- (pu) node[pos=0.5, below, sloped] {$d_G(u, p_{j+1}(u)$};
+\draw[dotted] (v) -- (pu) node[pos=0.5, below, sloped] {$d_G(v, p_{j+1}(u)$};
+\end{tikzpicture}
+\caption{$(j+1)$th iteration.\label{j2}}
+\end{subfigure}
+\caption{Two consecutive iterations of the while loop in $dist_k$. Both sampled points of $u$, $p_j(u)$ in Fig. \ref{j1} and $p_{j+1}(u)$ in Fig. \ref{j2}, are not in $B_v$ and therefore $j$ is not $(u,v)$-terminal.}
 \end{figure}
 % Reference til Mikkel/Zwick paper - hans query time og 'vores' forbedrede query time - forbedring af konstruktion. Forbedring i querytime, uden at det påvirker space/konstruktionstid.
 
