@@ -269,14 +269,14 @@ Hence, since $i_1, \hdots, i_2$ is $(u,v)$-feasible, so is $i, \hdots, i_2$.  \l
   level 1/.style={sibling distance=3cm},
   level 2/.style={sibling distance=1.5cm}]
   \node[color=red] {$I'$}
-    child[color=red] {node {$[0, ..., n/2]$}
+    child[color=red] {node {$[0, ..., i]$}
     child[color=black,thick] {node[color=cyan] {$I^j$}}
       child[dashed] {node {$p(l_1)$}
       	child[solid, left=0.1cm, color=black] {node[color=cyan] {$l_1=[i_1, i_1+2]$}}
       	child[solid,color=black] {node[color=cyan] {$[i_1+2,i_1+4]$}}
       }
     }
-    child[right=0.1cm, color=red] {node {$[n/2+2,...,n]$}
+    child[right=0.1cm, color=red] {node {$[i,...,k-1]$}
     child[color=black] {node[color=cyan] {$I^k$} 
     						child[dotted, color=black] {node {...}}
     						child[dotted, color=black,left=0.1cm] {node {...}}
@@ -297,9 +297,18 @@ legend style={at={(0,2)},font=\footnotesize}] % <= to define position and font l
     \addlegendimage{area legend,cyan, fill=cyan}
 \end{customlegend}
 \end{tikzpicture}
-\caption{Lorem Ipsumthing}
+\caption{A tree $T_u$ representing the recursion of $bdist_k$ of $u$, each node corresponding to the interval of a recursive call. The root node $I'$ consists of all even indices between $0$ and $k-1$.\label{tree}}
 \end{figure}
 
+\begin{thm}
+For an integer $k\geq 2$, a $(2k - 1)$-approximate distance oracle of G of size $O(kn^{1+1/k})$ and $O(\log k)$ query time can be constructed in $O\left( \min \left\lbrace kmn^{1+\frac{1}{k}}, \sqrt{k}m + kn^{1+c/k}\right\rbrace\right)$ time for some constant $c$.
+\end{thm}
+{\it Proof.} For variable $k\geq 3$, for each $u$ the bunch $B_u$ in computed in $O(kmn^{2})$ using \cite{Thorup2005}. The remaining preprocessing for $u$ is determining the necessary subsequences of $\mathcal{I}$ and the $j$ that maximized $\delta_j(u)$ for each subsequence.
+The necessary subsequences are built 
+
+To bound the time to identify these desired $j$, a simple linear search requires $O(k\log k)$ time. This can be improved to $O(k)$ by constructing of a recursive tree $\mathcal{T}_u$ for each $u$ that represents the recursion of $bdist_k$ on the subsequence $\mathcal{I}'$ consisting of all even numbers in $\mathcal{I}$. A bottom-up seach of $\mathcal{T}_u$ can identify for each canonical subsequence (canonical meaning it is a node in $\mathcal{T}$) $i_1,i_1+2,...,i_2$ an index $j$ in the subsequence that maximizes $\delta_j(u)$ in $O(k)$ time. The bottom-up traversal of $T$ requires checking at most $O(\log k)$ subsequences; consider the subsequence $i_1,..,i_2$ in seperate leaf nodes as seen in Fig. \ref{tree}. The path $P$ (red) starting in $p(l_1)$ and ending in $p(l_2)$ has $O(\log k)$ children, which we denote $X$. The union of $X$ clearly covers the entire subsequence $i_1,i_1+2,...,i_2-2,i_2$, and finding a $j$ that maximizes $\delta_j(u)$ in $X$ therefore gives a $j$ that maximizes $\delta_j(u)$ in the subsequence $i_1,...,i_2$. If $j$ is known for each node in $\mathcal{T}$, it follows that finding the desired $j$ for any canonical subsequences is bound by $O(\log k)$\\
+
+The recursion tree for $bdist_k$ for $u$ will have $\theta(k/\log k)$ children and $\theta(k/\log k)$ non-child nodes. Computing $j$ for each subsequence in $T$ will take $O(\log k)$ time per node, so total preprocessing time for $u$ is $O(k)$.  
 \bibliographystyle{plain}
 \bibliography{bibliography} 
 
