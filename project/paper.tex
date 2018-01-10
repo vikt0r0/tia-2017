@@ -153,8 +153,8 @@ A subsequence $\mathcal{I'}=i_1, \hdots, i_2$ of $\mathcal{I}$ is $(u,v)$-feasib
 \end{enumerate}
 \label{def:uvfeas}
 \end{defi}
-Condition $1$ and $3$ of $(u,v)$-feasibility entails a symmetric view of $dist_k(u,v,i)$ in which $u$ and $v$ successively exhanges roles for even an uneven $j$. Condition $2$ ensures that $dist_k(u,v,i)$ returns a $(2k-1)$-approximation when run with the first  $(u,v)$-feasible subsequence, as seen in the following lemma:
-
+Condition $1$ and $3$ of $(u,v)$-feasibility employs a symmetric view of iterations of $dist_k(u,v,i)$ in which $u$ and $v$ successively exhanges roles for even an uneven $j$. Condition $2$ ensures that $dist_k(u,v,i)$ returns a $(2k-1)$-approximation when run with the first $(u,v)$-feasible subsequence, as seen in the following lemma:
+\\
 \begin{lem}
 Let $i_1, \hdots, i_2$ be a $(u,v)$-feasible subsequence. Then $dist_k(u,v,i_1)$ gives a $2k-1$ approximation of $d_G(u,v)$ in time $O(i_2-i_1)$.
 \paragraph{Proof} By assumption $i_2$ is $(u,v)$-terminal. Therefore, $p_{i_2}(u) \in B_v$ or $p_{i_2 + 1}(v) \in B_u$. Thus $dist_k(u,v,i_1)$ terminates when $j=O(i_2)$ in time $O(i_2-i_1)$.
@@ -169,13 +169,16 @@ d_G(u,w) + d_G(w,v) &\leq 2d_G(u,w) + d_G(u,v) \\
 &\leq (2 (k-1) + 1)d_G(u,v) \\
 &\leq (2k-1) d_G(u,v)
 \end{align*}
+\label{lem:uvfeasterminates}
 \end{lem}
-% Inkluder illustration - forklarende tekst "By lemma 2.1 and the triangle inequality"
 
-% Lemma 3.2 her - Hele sekvensen, svarende til at køre Thorup-Zwick i=1...k
-
-% Lemma 3.3 her - "skip hver anden" - gør analysen symmetrisk - lav illustration (projicer punkter ned på reelle akse og indtegn afstande). Forklar bevis.
-
+Furthermore the lemma shows that $dist_k(u,v,i)$ runs in time proportional to $i_2-i_1$. We also have the following ``base case'' for $\mathcal{I}$:
+\\
+\begin{lem}
+$\mathcal{I}$ is $(u,v)$-feasible for all $u,v \in V$. \label{lem:basecase}
+\end{lem}
+The above lemma follows since $p_{k-1}(u) \in B_v$ for all $u \not= v \in V$. The following lemma gives us a way of splitting a $(u,v)$-feasible subsequence $I$ into two subsequences of size roughly $\frac{1}{2}|\mathcal{I}|$:
+\\
 \begin{lem}
 Let $i_1, \hdots, i_2$ be a $(u,v)$-feasible subsequence and let $i$ be even, $i_1+2 \leq i \leq i_2-2$. Let $j$ be an even index in subsequence $i_1, \hdots ,i-2$ that maximizes $\delta_j(u)$. If $p_j(u) \not\in B_v$ and $p_j+1(v) \not\in B_u$ then $i, \hdots , i_2$ is $(u,v)$-feasible. Otherwise, $i_1, \hdots , j$ is $(u,v)$-feasible.
 
@@ -196,6 +199,7 @@ d_G(u,p_{i}(u)) &= d_G(u,p_{i_1}(u)) + \sum_{j' \in \mathcal{I'}}\delta_{j'}(u) 
 \end{align*}
 Hence, since $i_1, \hdots, i_2$ is $(u,v)$-feasible, so is $i, \hdots, i_2$.  \label{lem:uvfeasibility}
 \end{lem}
+Visualisations of the proof for the bound on $d_G(u,p_{j+2})$ across two iterations can be seen in Fig. \ref{fig:twoiterations}. A visualisation of the proof for the bound on $d_G(u,p_i(u))$ can be seen Fig. \ref{fig:realline}.
 
 \begin{figure}[!hbt]
   \centering
@@ -212,8 +216,10 @@ Hence, since $i_1, \hdots, i_2$ is $(u,v)$-feasible, so is $i, \hdots, i_2$.  \l
 \begin{figure}
 \centering
     \includegraphics[width=1\textwidth]{include/tikz/distance_real_line.tikz}%
-\caption{Visualization of the distance $d_G(u,p_j(u))$ and $\delta_j(u)$. The green lines correspond to the circles defined by $u$ and the radii $d_G(p_l(u))$ for $l \in \left\{ i_1, j, j+2, i-2, i, i_2 \right\}$.}
+\caption{Visualization of the distance $d_G(u,p_j(u))$ and $\delta_j(u)$. The green lines correspond to the circles defined by $u$ and the radii $d_G(p_l(u))$ for $l \in \left\{ i_1, j, j+2, i-2, i, i_2 \right\}$. \label{fig:realline}}
 \end{figure}
+
+What lemmas \ref{lem:uvfeasterminates}, \ref{lem:basecase} and \ref{lem:uvfeasibility} entail is that, starting with the $(u,v)$-feasible sequence $\mathcal{I}=0,\hdots,k-1$, we may split it into two subsequences, one in which $(u,v)$-feasibility must be preserved. This splitting can be done recursively until a subsequence $\mathcal{I_r}$ for which $|\mathcal{I_r}|=O(\lg k)$ is determined. Applying $dist_k(u,v,i)$ to the first element of $\mathcal{I_r}$ produces a $(2k-1)$-approximation of the distance from $u$ to $v$ by $(u,v)$-feasibility in time proportional to $|\mathcal{I}_r|=O(\lg k)$.
 
 \begin{figure}[h]
 \begin{tikzpicture}[level distance=1.5cm,
