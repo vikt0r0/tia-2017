@@ -132,7 +132,7 @@ This lemma is readily used for bounding $d_G(u,v)$ by successively applying the 
 \end{figure}
 
 \section{Oracle with $O(\lg k)$ query time}
-As aforementioned, binary search on the iteration sequence of the Thorup-Zwick oracle is performed to drive down the query time to $\lg k$. Starting with the iteration sequence $\mathcal{I}=1,\hdots,k-1$, the idea is to identify $r=O(\lg k)$ subsequences $(\mathcal{I}_1=\mathcal{I}) \supset \mathcal{I}_1 \supset \hdots \supset \mathcal{I}_r$, where for $2 \leq j \leq t$ we have $|\mathcal{I}_{j-1}| \geq 2|\mathcal{I}_j|$. We wish to maintain the invariant that $dist_k(u,v,i)$ applied to the first element of any subsequence $\mathcal{I}_j$ outputs the stretch $(2k-1)$ estimate in $|\mathcal{\mathcal{I}_j}|$ time.
+As aforementioned, binary search on the iteration sequence of the Thorup-Zwick oracle is performed to drive down the query time to $\lg k$. Starting with the iteration sequence $\mathcal{I}=1,\hdots,k-1$, the idea is to identify $r=O(\lg k)$ subsequences $(\mathcal{I}_1=\mathcal{I}) \supset \mathcal{I}_1 \supset \hdots \supset \mathcal{I}_r$, where for $2 \leq j \leq t$ we have $|\mathcal{I}_{j-1}| \geq 2|\mathcal{I}_j|$. We wish to maintain the invariant that $dist_k(u,v,i)$ applied to the first element of any subsequence $\mathcal{I}_j$ outputs the stretch $(2k-1)$ estimate in $|\mathcal{I}_j|$ time.
 \\
 \begin{defi}
 For vertices $u,v \in V$ an index $j \in \mathcal{I}$ is $(u,v)$-terminal if
@@ -153,56 +153,7 @@ A subsequence $\mathcal{I'}=i_1, \hdots, i_2$ of $\mathcal{I}$ is $(u,v)$-feasib
 \end{enumerate}
 \label{def:uvfeas}
 \end{defi}
-Furthermore, the definition of $(u,v)$-feasibility 
-
-\begin{Walgo}[ht]{20pt}
-  \DontPrintSemicolon
-  \SetKwRepeat{Do}{do}{while}
-  \SetKwInOut{Input}{Input}
-  \SetKwInOut{Output}{Output}
-  \Indm
-    \Indp
-    \BlankLine
-    $w \leftarrow p_i(u); j \leftarrow i$
-    
-    \While{$w \not\in B_v$}{
-      $j \leftarrow j + 1$
-      
-      $(u,v) \leftarrow (v,u)$
-      
-      $w \leftarrow p_j(u)$
-    }
-    \Return{$d_G(w,u) + d_G(w,v)$}
-    
-    \caption{$dist_k(u,v,i)$}
-    \label{alg:distk}
-\end{Walgo}
-
-\begin{Walgo}[ht]{20pt}
-  \DontPrintSemicolon
-  \SetKwRepeat{Do}{do}{while}
-  \SetKwInOut{Input}{Input}
-  \SetKwInOut{Output}{Output}
-  \Indm
-    \Indp
-    \BlankLine
-    \If{$i_2-i_1 \leq \lg k$}{
-    	\Return{$dist_k(u,v,i_1)$}
-	}
-    
-    \textbf{let} $i$ be the middle even index $i_1,\hdots,i_2$
-    
-    \textbf{let} $i$ be the (precomputed) even index in $i_1,\hdots,i-2$ maximizing $\delta_j(u)$
-    
-    \If{$p_j(u) \not\in B_v$ \textbf{and} $p_{j+1} \not\in B_u$}{
-    	\Return{$bdist_k(u,v,i,i_2)$}
-    }
-    \Else{
-    	\Return{$bdist_k(u,v,i_1,j)$}
-    }
-    \caption{$bdist_k(u,v,i_1,i_2)$}
-    \label{alg:bdistk}
-\end{Walgo}
+Condition $1$ and $3$ of $(u,v)$-feasibility entails a symmetric view of $dist_k(u,v,i)$ in which $u$ and $v$ successively exhanges roles for even an uneven $j$. Condition $2$ ensures that $dist_k(u,v,i)$ returns a $(2k-1)$-approximation when run with the first  $(u,v)$-feasible subsequence, as seen in the following lemma:
 
 \begin{lem}
 Let $i_1, \hdots, i_2$ be a $(u,v)$-feasible subsequence. Then $dist_k(u,v,i_1)$ gives a $2k-1$ approximation of $d_G(u,v)$ in time $O(i_2-i_1)$.
@@ -308,7 +259,59 @@ The necessary subsequences are built
 
 To bound the time to identify these desired $j$, a simple linear search requires $O(k\log k)$ time. This can be improved to $O(k)$ by constructing of a recursive tree $\mathcal{T}_u$ for each $u$ that represents the recursion of $bdist_k$ on the subsequence $\mathcal{I}'$ consisting of all even numbers in $\mathcal{I}$. A bottom-up seach of $\mathcal{T}_u$ can identify for each canonical subsequence (canonical meaning it is a node in $\mathcal{T}$) $i_1,i_1+2,...,i_2$ an index $j$ in the subsequence that maximizes $\delta_j(u)$ in $O(k)$ time. The bottom-up traversal of $T$ requires checking at most $O(\log k)$ subsequences; consider the subsequence $i_1,..,i_2$ in seperate leaf nodes as seen in Fig. \ref{tree}. The path $P$ (red) starting in $p(l_1)$ and ending in $p(l_2)$ has $O(\log k)$ children, which we denote $X$. The union of $X$ clearly covers the entire subsequence $i_1,i_1+2,...,i_2-2,i_2$, and finding a $j$ that maximizes $\delta_j(u)$ in $X$ therefore gives a $j$ that maximizes $\delta_j(u)$ in the subsequence $i_1,...,i_2$. If $j$ is known for each node in $\mathcal{T}$, it follows that finding the desired $j$ for any canonical subsequences is bound by $O(\log k)$\\
 
-The recursion tree for $bdist_k$ for $u$ will have $\theta(k/\log k)$ children and $\theta(k/\log k)$ non-child nodes. Computing $j$ for each subsequence in $T$ will take $O(\log k)$ time per node, so total preprocessing time for $u$ is $O(k)$.  
+The recursion tree for $bdist_k$ for $u$ will have $\theta(k/\log k)$ children and $\theta(k/\log k)$ non-child nodes. Computing $j$ for each subsequence in $T$ will take $O(\log k)$ time per node, so total preprocessing time for $u$ is $O(k)$. 
+
+
+\begin{Walgo}[ht]{20pt}
+  \DontPrintSemicolon
+  \SetKwRepeat{Do}{do}{while}
+  \SetKwInOut{Input}{Input}
+  \SetKwInOut{Output}{Output}
+  \Indm
+    \Indp
+    \BlankLine
+    $w \leftarrow p_i(u); j \leftarrow i$
+    
+    \While{$w \not\in B_v$}{
+      $j \leftarrow j + 1$
+      
+      $(u,v) \leftarrow (v,u)$
+      
+      $w \leftarrow p_j(u)$
+    }
+    \Return{$d_G(w,u) + d_G(w,v)$}
+    
+    \caption{$dist_k(u,v,i)$}
+    \label{alg:distk}
+\end{Walgo}
+
+\begin{Walgo}[ht]{20pt}
+  \DontPrintSemicolon
+  \SetKwRepeat{Do}{do}{while}
+  \SetKwInOut{Input}{Input}
+  \SetKwInOut{Output}{Output}
+  \Indm
+    \Indp
+    \BlankLine
+    \If{$i_2-i_1 \leq \lg k$}{
+    	\Return{$dist_k(u,v,i_1)$}
+	}
+    
+    \textbf{let} $i$ be the middle even index $i_1,\hdots,i_2$
+    
+    \textbf{let} $i$ be the (precomputed) even index in $i_1,\hdots,i-2$ maximizing $\delta_j(u)$
+    
+    \If{$p_j(u) \not\in B_v$ \textbf{and} $p_{j+1} \not\in B_u$}{
+    	\Return{$bdist_k(u,v,i,i_2)$}
+    }
+    \Else{
+    	\Return{$bdist_k(u,v,i_1,j)$}
+    }
+    \caption{$bdist_k(u,v,i_1,i_2)$}
+    \label{alg:bdistk}
+\end{Walgo}
+
+ 
 \bibliographystyle{plain}
 \bibliography{bibliography} 
 
