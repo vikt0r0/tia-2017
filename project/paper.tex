@@ -15,10 +15,18 @@
 \usepackage[linesnumbered,ruled,vlined,algosection]{algorithm2e}
 \usepackage{parskip} 			   % no paragraph indentation
 
-\usetikzlibrary{arrows,automata}
+\usetikzlibrary{arrows,automata,decorations.pathreplacing,math}
 
 \input{include/Walgo.tex}
 
+% various tikz defs
+\makeatletter
+\newcommand{\gettikzxy}[3]{%
+  \tikz@scan@one@point\pgfutil@firstofone#1\relax
+  \edef#2{\the\pgf@x}%
+  \edef#3{\the\pgf@y}%
+}
+\makeatother
 
 % various theorems, numbered by section
 
@@ -70,6 +78,7 @@
 % Assumptions about the reader
 
 \begin{figure}
+\centering
 \begin{tikzpicture}
 \filldraw (0,0) circle (2pt) node[align=left,   below] {$u$};
 \filldraw (10,0) circle (2pt) node[align=right,  below] {$v$};
@@ -83,6 +92,110 @@
 \draw (u) -- (pu) node[pos=0.5, above, sloped] {$d_G(u,p_j(u))$};
 \draw (u) -- (v) node[pos=0.5, below, sloped] {$d_G(u,v))$};
 \draw (v) -- (pv);
+\end{tikzpicture}
+\caption{Lorem Ipsumthing}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+\tikzmath{
+  \a = 3;
+  \b = 2;
+  \i0 = 0;
+  \i1 = 0*\a+\b;
+  \i2 = 0.75*\a+\b;
+  \i3 = 1.7*\a+\b;
+  \i4 = 2.5*\a+\b;
+  \i5 = 3.25*\a+\b;
+  \i6 = 4*\a+\b;
+  \s0 = 0;
+  \s1 = \s0 + \i1;
+  \s2 = \s1 + \i2;
+  \s3 = \s2 + \i3;
+  \s4 = \s3 + \i4;
+  \s5 = \s4 + \i5;
+  \s6 = \s5 + \i6;
+}
+
+%\draw[-latex] (0,0) -- (4.5*\a+\b,0);
+\draw[-] (0,0) -- (\i1*0.2,0);
+\draw[dashed] (\i1*0.2,0) -- (\i1-\i1*0.2,0);
+\draw[-] (\i1-\i1*0.2,0) -- (\i1,0);
+
+\draw[-] (\i1,0) -- (\i1+\i2*0.2-\i1*0.2,0);
+\draw[dashed] (\i1+\i2*0.2-\i1*0.2,0) -- (\i2-\i2*0.2+\i1*0.2,0);
+\draw[-] (\i2-\i2*0.2+\i1*0.2,0) -- (\i2,0);
+
+\draw[-,thick,red] (\i2,0) -- (\i3,0);
+
+\draw[-] (\i3,0) -- (\i3+\i4*0.2-\i3*0.2,0);
+\draw[dashed] (\i3+\i4*0.2-\i3*0.2,0) -- (\i4-\i4*0.2+\i3*0.2,0);
+\draw[-] (\i4-\i4*0.2+\i3*0.2,0) -- (\i4,0);
+
+\draw[-] (\i4,0) -- (\i5,0);
+
+\draw[-] (\i5,0) -- (\i5+\i6*0.2-\i5*0.2,0);
+\draw[dashed] (\i5+\i6*0.2-\i5*0.2,0) -- (\i6-\i6*0.2+\i5*0.2,0);
+\draw[-] (\i6-\i6*0.2+\i5*0.2,0) -- (\i6,0);
+
+\draw[-latex] (\i6,0) -- (\i6+1,0);
+
+% 0
+\draw[shift={(0,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
+\draw[shift={(0,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
+{$0$};
+
+
+% p_i_1
+\draw[shift={(\i1,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
+\draw[shift={(\i1,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
+{$d_G(p_{i_1}(u))$};
+
+% p_j
+\draw[shift={(\i2,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
+\draw[shift={(\i2,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
+{$d_G(p_j(u))$};
+
+% p_j_p2
+\draw[shift={(\i3,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
+\draw[shift={(\i3,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
+{$d_G(p_{j+2}(u))$};
+
+% p_i
+\draw[shift={(\i4,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
+\draw[shift={(\i4,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
+{$d_G(p_{i-2}(u))$};
+
+% p_i_p2
+\draw[shift={(\i5,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
+\draw[shift={(\i5,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
+{$d_G(p_{i}(u))$};
+
+% p_i_2
+\draw[shift={(\i6,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
+\draw[shift={(\i6,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
+{$d_G(p_{i_2}(u))$};
+
+% d_G(u,p_{1_i}(u))
+\draw[decorate,decoration={brace,amplitude=10pt,raise=4pt},yshift=0pt]
+(0,1.2) -- (\i1,1.2) node [black,midway,xshift=0cm,yshift=23pt] {\footnotesize
+$d_G(u,p_{i_1}(u))$};
+
+% \delta_j(u)
+\draw[decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt]
+(\i3,0.075) -- (\i2,0.075) node [black,midway,xshift=0cm,yshift=23pt] {\footnotesize
+$\delta_j(u)$};
+
+% \sum
+\draw[decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt]
+(\i5,1.2) -- (\i1,1.2) node [black,midway,xshift=0cm,yshift=23pt] {\footnotesize
+$\sum_{j' \in \mathcal{I}'}\delta_{j'}(u)$};
+
+\draw[dashed] (0,0) -- (0,1.2);
+\draw[dashed] (\i1,0) -- (\i1,1.2);
+\draw[dashed] (\i5,0) -- (\i5,1.2);
+
 \end{tikzpicture}
 \caption{Lorem Ipsumthing}
 \end{figure}
