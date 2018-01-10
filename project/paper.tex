@@ -15,7 +15,7 @@
 \usepackage[linesnumbered,ruled,vlined,algosection]{algorithm2e}
 \usepackage{parskip} 			   % no paragraph indentation
 \usepackage{subcaption}
-
+\usepackage{pgfplots}
 \usetikzlibrary{arrows,automata}
 
 \input{include/Walgo.tex}
@@ -49,6 +49,30 @@
     xleftmargin=.1\textwidth,
     xrightmargin=.1\textwidth
 }
+
+% argument #1: any options
+\newenvironment{customlegend}[1][]{%
+    \begingroup
+    % inits/clears the lists (which might be populated from previous
+    % axes):
+    \csname pgfplots@init@cleared@structures\endcsname
+    \pgfplotsset{#1}%
+}{%
+    % draws the legend:
+    \csname pgfplots@createlegend\endcsname
+    \endgroup
+}%
+\def\addlegendimage{\csname pgfplots@addlegendimage\endcsname}
+\pgfkeys{/pgfplots/number in legend/.style={%
+        /pgfplots/legend image code/.code={%
+            \node at (0.125,-0.0225){#1}; % <= changed x value
+        },%
+    },
+}
+\pgfplotsset{
+every legend to name picture/.style={west}
+}
+
 
 \begin{document}
 
@@ -218,5 +242,40 @@ d_G(u,p_{i}(u)) &= d_G(u,p_{i_1}(u)) + \sum_{j' \in \mathcal{I'}}\delta_{j'}(u) 
 Hence, since $i_1, \hdots, i_2$ is $(u,v)$-feasible, so is $i, \hdots, i_2$.
 \end{lem}
 
+\begin{figure}[H]
+\begin{tikzpicture}[level distance=1.5cm,
+  level 1/.style={sibling distance=3cm},
+  level 2/.style={sibling distance=1.5cm}]
+  \node[color=red] {$I'$}
+    child[color=red] {node {$[0, ..., n/2]$}
+    child[color=black,thick] {node[color=cyan] {$I^j$}}
+      child[dashed] {node {$p(l_1)$}
+      	child[solid, left=0.1cm, color=black] {node[color=cyan] {$l_1=[i_1, i_1+2]$}}
+      	child[solid,color=black] {node[color=cyan] {$[i_1+2,i_1+4]$}}
+      }
+    }
+    child[right=0.1cm, color=red] {node {$[n/2+2,...,n]$}
+    child[color=black] {node[color=cyan] {$I^k$} 
+    						child[dotted, color=black] {node {...}}
+    						child[dotted, color=black,left=0.1cm] {node {...}}
+    					}
+      child[dashed] {{node {$p(l_2)$}
+       	child[solid,color=black] {node[color=cyan] {$[i_2-4,i_2-2]$}}
+      	child[right=1cm,solid,color=black] {node[color=cyan] {$l_2=[i_2-2, i_2]$}}
+    }}};
+    
+\begin{customlegend}[legend cell align=left, %<= to align cells
+legend entries={ % <= in the following there are the entries
+$P$: path between $p(l_1)$ and $p(l_2)$,
+ nodes belonging to $X$.
+},
+legend style={at={(0,2)},font=\footnotesize}] % <= to define position and font legend
+% the following are the "images" and numbers in the legend
+    \addlegendimage{solid,red}
+    \addlegendimage{area legend,cyan, fill=cyan}
+\end{customlegend}
+\end{tikzpicture}
+\caption{Lorem Ipsumthing}
+\end{figure}
 
 \end{document}
