@@ -132,7 +132,7 @@ This lemma is readily used for bounding $d_G(u,v)$ by successively applying the 
 \end{figure}
 
 \section{Oracle with $O(\lg k)$ query time}
-As aforementioned, binary search on the iteration sequence of the Thorup-Zwick oracle is performed to drive down the query time to $\lg k$. Starting with the iteration sequence $\mathcal{I}=1,\hdots,k-1$, the idea is to identify $r=O(\lg k)$ subsequences $(\mathcal{I}_1=\mathcal{I}) \supset \mathcal{I}_1 \supset \hdots \supset \mathcal{I}_r$, where for $2 \leq j \leq t$ we have $|\mathcal{I}_{j-1}| \geq 2|\mathcal{I}_j|$. We wish to maintain the invariant that $dist_k(u,v,i)$ applied to the first element of any subsequence $\mathcal{I}_j$ outputs the stretch $(2k-1)$ estimate in $|\mathcal{I}_j|$ time.
+As aforementioned, binary search on the iteration sequence of the Thorup-Zwick oracle is performed to drive down the query time to $\lg k$. Starting with the iteration sequence $\mathcal{I}=1,\hdots,k-1$, the idea is to identify $r=O(\lg k)$ subsequences $(\mathcal{I}_1=\mathcal{I}) \supset \mathcal{I}_1 \supset \hdots \supset \mathcal{I}_r$, where for $2 \leq j \leq t$ we have $|\mathcal{I}_{j-1}| \geq 2|\mathcal{I}_j|$. We wish to maintain the invariant that $dist_k(u,v,i)$ applied to the first element of any subsequence $\mathcal{I}_j$ outputs the stretch $(2k-1)$ estimate in $|\mathcal{I}_j|$ time.
 \\
 \begin{defi}
 For vertices $u,v \in V$ an index $j \in \mathcal{I}$ is $(u,v)$-terminal if
@@ -160,7 +160,7 @@ Let $i_1, \hdots, i_2$ be a $(u,v)$-feasible subsequence. Then $dist_k(u,v,i_1)$
 \paragraph{Proof} By assumption $i_2$ is $(u,v)$-terminal. Therefore, $p_{i_2}(u) \in B_v$ or $p_{i_2 + 1}(v) \in B_u$. Thus $dist_k(u,v,i_1)$ terminates when $j=O(i_2)$ in time $O(i_2-i_1)$.
 
 Furthermore $d_{G}(p_{i_1}(u),u) \leq i_1 \cdot d_G(u,v)$. When $p_j(u) = w \not\in B_v$
-we have $d_G(v,p_{j+1}(v)) \leq d_G(v,p_{j}(u)) \leq d_G(v,u) + d_G(u,p_j(u))$ by Lemma \ref{lem:onedeltaperiteration} and the triangle inequality. Hence each iteration of $dist_k(u,v,i)$ increases $d_G(u,w)$ by at most $d_G(u,v)$. At termination we have
+we have $d_G(v,p_{j+1}(v)) \leq d_G(v,p_{j}(u)) \leq d_G(v,u) + d_G(u,p_j(u))$ by Lemma \ref{lem:onedeltaperiteration} and the triangle inequality, as visualized in Fig. \ref{fig:j1}. Hence each iteration of $dist_k(u,v,i)$ increases $d_G(u,w)$ by at most $d_G(u,v)$. At termination we have
 \begin{align*}
 d_G(u,w) + d_G(w,v) &\leq 2d_G(u,w) + d_G(u,v) \\
 &\leq 2(i_1 \cdot d_G(u,v) + (i_2 - i_1)d_G(u,v)) + d_G(u,v) \\
@@ -259,14 +259,17 @@ legend style={at={(0,2)},font=\footnotesize}] % <= to define position and font l
 
 \begin{thm}
 For an integer $k\geq 2$, a $(2k - 1)$-approximate distance oracle of G of size $O(kn^{1+1/k})$ and $O(\log k)$ query time can be constructed in $O\left( \min \left\lbrace kmn^{1+\frac{1}{k}}, \sqrt{k}m + kn^{1+c/k}\right\rbrace\right)$ time for some constant $c$.
-\end{thm}
-{\it Proof.} For variable $k\geq 3$, for each $u$ the bunch $B_u$ in computed in $O(kmn^{2})$ using \cite{Thorup2005}. The remaining preprocessing for $u$ is determining the necessary subsequences of $\mathcal{I}$ and the $j$ that maximized $\delta_j(u)$ for each subsequence.
-The necessary subsequences are built 
 
+\paragraph{Proof.} 
+
+For variable $k\geq 3$, for each $u$ the bunch $B_u$ in computed in $O(kmn^{2})$ using \cite{Thorup2005}. The remaining preprocessing for $u$ is determining the necessary subsequences of $\mathcal{I}$ and the $j$ that maximized $\delta_j(u)$ for each subsequence.
+For a subsequence $I'=i_1,...i_2$, the necessary subsequences are constructed by finding an even index $i$ that equally splits $I'$ into two sets $i_1,...,i$ and $i,...,i_2$. Then, find a $j$ in $i_1,...,i$ that maximized $\delta_j(u)$. Then recurse on $i_1,...,i$ and $i,...,i_2$. The recursion stop when a subsequence has length at most $\log k$. This recursion corresponds to the recursion of $bdist_k$, and it will henceforth be referred to as the recursion of $bdist_k$.
+
+The query time is bounded by the number of recursions needed before reaching a $(u,v)-feasible$ subsequence of size at most $\log k$. $bdist_k$ uses a binary search, so that at an arbitraty iteration the subsequence will be split in half into subsequences $i_1,...,i$ and $i,...,i_2$. Only the one of these two subsequences that is $(u,v)$-terminal is then recursed upon. As the number of recursions in this binary search is $O(\log k)$ and $i$ and $j$ are known for all subsequences, the query time is $O(\log k)$.
 To bound the time to identify these desired $j$, a simple linear search requires $O(k\log k)$ time. This can be improved to $O(k)$ by constructing of a recursive tree $\mathcal{T}_u$ for each $u$ that represents the recursion of $bdist_k$ on the subsequence $\mathcal{I}'$ consisting of all even numbers in $\mathcal{I}$. A bottom-up seach of $\mathcal{T}_u$ can identify for each canonical subsequence (canonical meaning it is a node in $\mathcal{T}$) $i_1,i_1+2,...,i_2$ an index $j$ in the subsequence that maximizes $\delta_j(u)$ in $O(k)$ time. The bottom-up traversal of $T$ requires checking at most $O(\log k)$ subsequences; consider the subsequence $i_1,..,i_2$ in seperate leaf nodes as seen in Fig. \ref{tree}. The path $P$ (red) starting in $p(l_1)$ and ending in $p(l_2)$ has $O(\log k)$ children, which we denote $X$. The union of $X$ clearly covers the entire subsequence $i_1,i_1+2,...,i_2-2,i_2$, and finding a $j$ that maximizes $\delta_j(u)$ in $X$ therefore gives a $j$ that maximizes $\delta_j(u)$ in the subsequence $i_1,...,i_2$. If $j$ is known for each node in $\mathcal{T}$, it follows that finding the desired $j$ for any canonical subsequences is bound by $O(\log k)$\\
 
-The recursion tree for $bdist_k$ for $u$ will have $\theta(k/\log k)$ children and $\theta(k/\log k)$ non-child nodes. Computing $j$ for each subsequence in $T$ will take $O(\log k)$ time per node, so total preprocessing time for $u$ is $O(k)$. 
-
+The recursion tree for $bdist_k$ for $u$ will have $\theta(k/\log k)$ children and $\theta(k/\log k)$ non-child nodes. Computing $j$ for each subsequence in $T$ will take $O(\log k)$ time per node, so total preprocessing time for $u$ is $O(k)$. Thus, the preprocessing time for finding $j$ for $G$ is $O(nk)\leq O(km)\leq O(kmn^{1/k})$ as desired.
+\end{thm}
 
 \begin{Walgo}[ht]{20pt}
   \DontPrintSemicolon
@@ -317,7 +320,7 @@ The recursion tree for $bdist_k$ for $u$ will have $\theta(k/\log k)$ children a
     \label{alg:bdistk}
 \end{Walgo}
 
- 
+
 \bibliographystyle{plain}
 \bibliography{bibliography} 
 
