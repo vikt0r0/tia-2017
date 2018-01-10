@@ -9,13 +9,16 @@
 \usepackage{amsmath,bm}            % great math stuff
 \usepackage{amsfonts}              % for blackboard bold, etc
 \usepackage{amsthm}                % better theorem environments
+\usepackage{breqn}
 \usepackage{listings}
 \usepackage{hyperref}
 \usepackage{tikz}
+\usepackage{tikzscale}
+\usepackage{pgfplots}
 \usepackage[linesnumbered,ruled,vlined,algosection]{algorithm2e}
 \usepackage{parskip} 			   % no paragraph indentation
-
-\usetikzlibrary{arrows,automata,decorations.pathreplacing,math}
+\usetikzlibrary{arrows,automata,decorations.pathreplacing,math,arrows,automata}
+\usepackage{subcaption}
 
 \input{include/Walgo.tex}
 
@@ -57,6 +60,30 @@
     xrightmargin=.1\textwidth
 }
 
+% argument #1: any options
+\newenvironment{customlegend}[1][]{%
+    \begingroup
+    % inits/clears the lists (which might be populated from previous
+    % axes):
+    \csname pgfplots@init@cleared@structures\endcsname
+    \pgfplotsset{#1}%
+}{%
+    % draws the legend:
+    \csname pgfplots@createlegend\endcsname
+    \endgroup
+}%
+\def\addlegendimage{\csname pgfplots@addlegendimage\endcsname}
+\pgfkeys{/pgfplots/number in legend/.style={%
+        /pgfplots/legend image code/.code={%
+            \node at (0.125,-0.0225){#1}; % <= changed x value
+        },%
+    },
+}
+\pgfplotsset{
+every legend to name picture/.style={west}
+}
+
+
 \begin{document}
 
 \nocite{*}
@@ -69,153 +96,35 @@
 \maketitle
 
 \begin{abstract}
-  This comprises our project covering Approximation Distance Oracles with Improved Query Time for the Topics in Algorithms course offered at The Department of Computer Science, Uni. Copenhagen.
+  This comprises our project covering the first half of the paper "Approximation Distance Oracles with Improved Query Time" by Christian Wulff-Nilsen \cite{Wulff2013}. This project attempts to elaborate and provide intuition on the $\lg k$-query time improvement by providing explanations and visualisations of proofs.
 \end{abstract}
 
 \pagebreak
 
 \section{Overview}
+Given an undirected graph $G$ with non-negative edge weights, $m$ edges, $n$ vertices and some $k \in \mathbb{Z} \geq 2$, Thorup and Zwick showed that a $(2k-1)$-approximate distance oracle for $G$ of size $O(kn^{1+1/k})$ and $O(k)$ query time can be constructed in $kmn^{1/k}$ expected time \cite{Thorup2005}. \cite{Wulff2013} improves this query time to $\lg k$, while preserving stretch, space and preprocessing time. % Specifically $O( \min \left\{ kmn^{1/k}, \sqrt{k}m+kn^{1+c/\sqrt{k}} \right\})$ time for some constant $c$.
+
+The reduction in query time is accomplished by performing binary search on the bunch structures described in \cite{Thorup2005} by uniquely determining at which level the bunch 
 % Assumptions about the reader
 
-\begin{figure}
-\centering
-\begin{tikzpicture}
-\filldraw (0,0) circle (2pt) node[align=left,   below] {$u$};
-\filldraw (10,0) circle (2pt) node[align=right,  below] {$v$};
-\filldraw[fill=gray] (4,3) circle (2pt) node[align=left, above] {$p_j(u)$};
-\filldraw[fill=gray] (8,3.5) circle (2pt) node[align=left, above] {$p_{j+1}(v)$};
-\coordinate (u) at (0,0) ;
-\coordinate (v) at (10,0);
-\coordinate (pu) at (4,3);
-\coordinate (pv) at (8, 3.5);
-\draw[dashed] (v) circle [radius=4];
-\draw (u) -- (pu) node[pos=0.5, above, sloped] {$d_G(u,p_j(u))$};
-\draw (u) -- (v) node[pos=0.5, below, sloped] {$d_G(u,v))$};
-\draw (v) -- (pv);
-\end{tikzpicture}
-\caption{Lorem Ipsumthing}
-\end{figure}
-
-\begin{figure}
-\centering
-\begin{tikzpicture}
-\tikzmath{
-  \a = 3;
-  \b = 2;
-  \i0 = 0;
-  \i1 = 0*\a+\b;
-  \i2 = 0.75*\a+\b;
-  \i3 = 1.7*\a+\b;
-  \i4 = 2.5*\a+\b;
-  \i5 = 3.25*\a+\b;
-  \i6 = 4*\a+\b;
-  \s0 = 0;
-  \s1 = \s0 + \i1;
-  \s2 = \s1 + \i2;
-  \s3 = \s2 + \i3;
-  \s4 = \s3 + \i4;
-  \s5 = \s4 + \i5;
-  \s6 = \s5 + \i6;
-}
-
-%\draw[-latex] (0,0) -- (4.5*\a+\b,0);
-\draw[-] (0,0) -- (\i1*0.2,0);
-\draw[dashed] (\i1*0.2,0) -- (\i1-\i1*0.2,0);
-\draw[-] (\i1-\i1*0.2,0) -- (\i1,0);
-
-\draw[-] (\i1,0) -- (\i1+\i2*0.2-\i1*0.2,0);
-\draw[dashed] (\i1+\i2*0.2-\i1*0.2,0) -- (\i2-\i2*0.2+\i1*0.2,0);
-\draw[-] (\i2-\i2*0.2+\i1*0.2,0) -- (\i2,0);
-
-\draw[-,thick,red] (\i2,0) -- (\i3,0);
-
-\draw[-] (\i3,0) -- (\i3+\i4*0.2-\i3*0.2,0);
-\draw[dashed] (\i3+\i4*0.2-\i3*0.2,0) -- (\i4-\i4*0.2+\i3*0.2,0);
-\draw[-] (\i4-\i4*0.2+\i3*0.2,0) -- (\i4,0);
-
-\draw[-] (\i4,0) -- (\i5,0);
-
-\draw[-] (\i5,0) -- (\i5+\i6*0.2-\i5*0.2,0);
-\draw[dashed] (\i5+\i6*0.2-\i5*0.2,0) -- (\i6-\i6*0.2+\i5*0.2,0);
-\draw[-] (\i6-\i6*0.2+\i5*0.2,0) -- (\i6,0);
-
-\draw[-latex] (\i6,0) -- (\i6+1,0);
-
-% 0
-\draw[shift={(0,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
-\draw[shift={(0,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
-{$0$};
-
-
-% p_i_1
-\draw[shift={(\i1,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
-\draw[shift={(\i1,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
-{$d_G(p_{i_1}(u))$};
-
-% p_j
-\draw[shift={(\i2,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
-\draw[shift={(\i2,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
-{$d_G(p_j(u))$};
-
-% p_j_p2
-\draw[shift={(\i3,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
-\draw[shift={(\i3,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
-{$d_G(p_{j+2}(u))$};
-
-% p_i
-\draw[shift={(\i4,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
-\draw[shift={(\i4,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
-{$d_G(p_{i-2}(u))$};
-
-% p_i_p2
-\draw[shift={(\i5,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
-\draw[shift={(\i5,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
-{$d_G(p_{i}(u))$};
-
-% p_i_2
-\draw[shift={(\i6,0)},color=black] (0pt,3pt) -- (0pt,-3pt);
-\draw[shift={(\i6,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] 
-{$d_G(p_{i_2}(u))$};
-
-% d_G(u,p_{1_i}(u))
-\draw[decorate,decoration={brace,amplitude=10pt,raise=4pt},yshift=0pt]
-(0,1.2) -- (\i1,1.2) node [black,midway,xshift=0cm,yshift=23pt] {\footnotesize
-$d_G(u,p_{i_1}(u))$};
-
-% \delta_j(u)
-\draw[decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt]
-(\i3,0.075) -- (\i2,0.075) node [black,midway,xshift=0cm,yshift=23pt] {\footnotesize
-$\delta_j(u)$};
-
-% \sum
-\draw[decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt]
-(\i5,1.2) -- (\i1,1.2) node [black,midway,xshift=0cm,yshift=23pt] {\footnotesize
-$\sum_{j' \in \mathcal{I}'}\delta_{j'}(u)$};
-
-\draw[dashed] (0,0) -- (0,1.2);
-\draw[dashed] (\i1,0) -- (\i1,1.2);
-\draw[dashed] (\i5,0) -- (\i5,1.2);
-
-\end{tikzpicture}
-\caption{Lorem Ipsumthing}
-\end{figure}
 % Reference til Mikkel/Zwick paper - hans query time og 'vores' forbedrede query time - forbedring af konstruktion. Forbedring i querytime, uden at det påvirker space/konstruktionstid.
 
 % Motivation
 
 % Girth Conjecture?
 
-Given an undirected, positively weighted graph $G$ with $m$ edges, $n$ vertices and given $k \in \mathbb{Z}$, $k \geq 2$, we show that a $2k-1$ approximate distance oracle for $G$ of size $O(kn^{1+1/k})$ and with $O(\lg k)$ query time can be constructed in $O( \min \left\{ kmn^{1/k}, \sqrt{k}m+kn^{1+c/\sqrt{k}} \right\})$ time for some constant $c$.
-% Definitioner
+\section{Definitions}
+The following definitions are taken directly from \cite{Thorup2005} and \cite{Wulff2013} and are used throughout this project.
 \begin{itemize}
 \item $d_{G}(u,v)$: the shortest path distance between $u$ and $v$.
 \item $A_i = \left\{ a \in A_{i-1} \; | \; a \text{ sampled with prob. } n^{-1/k} \text{ uniformly, i.i.d.} \right\}$
 \item $V = A_0 \supseteq A_1 \supseteq \hdots \supseteq A_k = \emptyset$
 \item $p_i(u) = \min_{v \in A_i} \left\{ d_{G}(u,v) \right\}$
-\item $B_u=\bigcup_{i=0}^{k-1}\left\{ v \in A_i - A_{i+1} \; | \; d_{G}(u,v) < d_{G}(u, p_{i+1}(u)) \right\}$
+\item $B_u=\bigcup_{i=0}^{k-1}\left\{ v \in A_i - A_{i+1} \; | \; d_{G}(u,v) < d_{G}(u, p_{i+1}(u)) \right\}$, the bunch of $u$.
 \item $d_G(u,p_k(u))=\infty$
 \end{itemize}
-
+Thorup and Zwick showed that
+\\
 \begin{lem}
 Let $u,v \in V$ be distinct vertices $0 \leq i < k-1$. If $p_i(v) \not\in B_{u}$ then $d_G(u, p_{i+1}(u)) \leq d_G(u, p_i(v))$. Furthermore $A_{k-1} \subset B_u$ and $p_{k-1}(v) \in B_u$. \label{lem:onedeltaperiteration}
 \end{lem}
@@ -286,12 +195,12 @@ d_G(u,w) + d_G(w,v) &\leq 2d_G(u,w) + d_G(u,v) \\
 \begin{lem}
 Let $i_1, \hdots, i_2$ be a $(u,v)$-feasible subsequence and let $i$ be even, $i_1+2 \leq i \leq i_2-2$. Let $j$ be an even index in subsequence $i_1, \hdots ,i-2$ that maximizes $\delta_j(u)$. If $p_j(u) \not\in B_v$ and $p_j+1(v) \not\in B_u$ then $i, \hdots , i_2$ is $(u,v)$-feasible. Otherwise, $i_1, \hdots , j$ is $(u,v)$-feasible.
 
-\paragraph{Proof} If $p_j(u) \in B_v$ or $p_j+1(v) \in B_u$, then $j$ is $(u,v)$-feasible, and so is $i_1, \hdots, j$. Assume that $p_j(u) \not\in B_v$ and $p_j+1(v) \not\in B_u$. Then, by Lemma \ref{lem:lemma1}, $d_G(v,p_{j+1}(v)) \leq d_G(v,p_{j}(u))$ and $d_G(u,p_{j+2}(u)) \leq d_G(u,p_{j+1(v)})$. Applying the triangle inequality twice, we get 
+\paragraph{Proof} If $p_j(u) \in B_v$ or $p_j+1(v) \in B_u$, then $j$ is $(u,v)$-feasible, and so is $i_1, \hdots, j$. Assume that $p_j(u) \not\in B_v$ and $p_j+1(v) \not\in B_u$. Then, by Lemma \ref{lem:onedeltaperiteration}, $d_G(v,p_{j+1}(v)) \leq d_G(v,p_{j}(u))$ and $d_G(u,p_{j+2}(u)) \leq d_G(u,p_{j+1(v)})$. Applying the triangle inequality twice, cfr. Fig. \ref{fig:twoiterations}, we get 
 \begin{align*}
-d_G(u,p_{j+2}(u) &\leq d_G(u,p_{j+1}(v)) \\
-&\leq d_G(u,v) + d_G(v, p_{j+1}(v)) \\
-&\leq d_G(u,v) + d_G(v, p_{j}(u)) \\
-&\leq 2d_G(u,v) + d_G(u, p_{j}(u))
+d_G(u,p_{j+2}(u) &\leq d_G(u,p_{j+1}(v)) &(\text{Lemma \ref{lem:onedeltaperiteration}}) \\
+&\leq d_G(u,v) + d_G(v, p_{j+1}(v)) &(\text{Triangle Inequality})\\
+&\leq d_G(u,v) + d_G(v, p_{j}(u)) &(\text{Lemma \ref{lem:onedeltaperiteration}})\\
+&\leq 2d_G(u,v) + d_G(u, p_{j}(u))&(\text{Triangle Inequality})
 \end{align*}
 so $\delta_j(u) = d_G(u,p_{j+2}(u)) - d_G(u,p_j(u)) \leq 2d_G(u,v)$. Let $\mathcal{I}'$ be the set of even indices $i_1, i_1+2, i_1+4, \hdots, i-2$. Since $i_1, \hdots, i_2$ is $(u,v)$-feasible, $d_G(u,p_{i_1}(u)) \leq i_1 \cdot d_G(u,v)$. By the choice of $j$,
 \begin{align*}
@@ -301,8 +210,64 @@ d_G(u,p_{i}(u)) &= d_G(u,p_{i_1}(u)) + \sum_{j' \in \mathcal{I'}}\delta_{j'}(u) 
 &\leq i_1 \cdot d_G(u,v) + (i-i_1)d_G(u,v) \\
 &= i \cdot d_G(u,v)
 \end{align*}
-Hence, since $i_1, \hdots, i_2$ is $(u,v)$-feasible, so is $i, \hdots, i_2$.
+Hence, since $i_1, \hdots, i_2$ is $(u,v)$-feasible, so is $i, \hdots, i_2$.  \label{lem:uvfeasibility}
 \end{lem}
 
+\begin{figure}[!hbt]
+  \centering
+  \subcaptionbox{$(j)$th iteration\label{fig:j1}}{
+    \includegraphics[width=.45\textwidth]{include/tikz/jth_iteration.tikz}%
+  }
+  \hfill
+  \subcaptionbox{$(j+1)$th iteration\label{fig:j2}}{
+    \includegraphics[width=.45\textwidth]{include/tikz/j1th_iteration.tikz}%
+  }
+  \caption{Two consecutive iterations of the while loop in $dist_k$. Both sampled points of $u$, $p_j(u)$ in Fig. \ref{fig:j1} and $p_{j+1}(u)$ in Fig. \ref{fig:j2}, are not in $B_v$ and therefore $j$ is not $(u,v)$-terminal. An upper bound of $2d_{G}(u,v)+d_G(u,p_j(u))$ is derived on $d_G(u,p_{j+2}(u))$ in Lemma \ref{lem:uvfeasibility} by applying Lemma \ref{lem:onedeltaperiteration} and the triangle inequality twice. \label{fig:twoiterations}}
+\end{figure}
+
+\begin{figure}
+\centering
+    \includegraphics[width=1\textwidth]{include/tikz/distance_real_line.tikz}%
+\caption{Visualization of the distance $d_G(u,p_j(u))$ and $\delta_j(u)$. The green lines correspond to the circles defined by $u$ and the radii $d_G(p_l(u))$ for $l \in \left\{ i_1, j, j+2, i-2, i, i_2 \right\}$.}
+\end{figure}
+
+\begin{figure}[h]
+\begin{tikzpicture}[level distance=1.5cm,
+  level 1/.style={sibling distance=3cm},
+  level 2/.style={sibling distance=1.5cm}]
+  \node[color=red] {$I'$}
+    child[color=red] {node {$[0, ..., n/2]$}
+    child[color=black,thick] {node[color=cyan] {$I^j$}}
+      child[dashed] {node {$p(l_1)$}
+      	child[solid, left=0.1cm, color=black] {node[color=cyan] {$l_1=[i_1, i_1+2]$}}
+      	child[solid,color=black] {node[color=cyan] {$[i_1+2,i_1+4]$}}
+      }
+    }
+    child[right=0.1cm, color=red] {node {$[n/2+2,...,n]$}
+    child[color=black] {node[color=cyan] {$I^k$} 
+    						child[dotted, color=black] {node {...}}
+    						child[dotted, color=black,left=0.1cm] {node {...}}
+    					}
+      child[dashed] {{node {$p(l_2)$}
+       	child[solid,color=black] {node[color=cyan] {$[i_2-4,i_2-2]$}}
+      	child[right=1cm,solid,color=black] {node[color=cyan] {$l_2=[i_2-2, i_2]$}}
+    }}};
+    
+\begin{customlegend}[legend cell align=left, %<= to align cells
+legend entries={ % <= in the following there are the entries
+$P$: path between $p(l_1)$ and $p(l_2)$,
+ nodes belonging to $X$.
+},
+legend style={at={(0,2)},font=\footnotesize}] % <= to define position and font legend
+% the following are the "images" and numbers in the legend
+    \addlegendimage{solid,red}
+    \addlegendimage{area legend,cyan, fill=cyan}
+\end{customlegend}
+\end{tikzpicture}
+\caption{Lorem Ipsumthing}
+\end{figure}
+
+\bibliographystyle{plain}
+\bibliography{bibliography} 
 
 \end{document}

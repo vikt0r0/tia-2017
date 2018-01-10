@@ -1,0 +1,18 @@
+\begin{tikzpicture}
+  \filldraw (0,0) circle (2pt) node[align=left,   below] {$u$};
+  \filldraw (10,0) circle (2pt) node[align=right,  below] {$v$};
+  \filldraw[fill=gray] (4,3) circle (2pt) node[align=left, above] {$p_j(u)$};
+  \filldraw[fill=white] (8,3.45) circle (2pt) node[align=left, above] {$p_{j+1}(v)$};
+  \coordinate (u) at (0,0) ;
+  \coordinate (v) at (10,0);
+  \coordinate (pu) at (4,3);
+  \coordinate (pv) at (8, 3.45);
+  \begin{scope}
+    \clip (0,6) rectangle (10,-1);
+    \draw[dashed,green] (v) circle [radius=4];
+  \end{scope}
+  \draw (u) -- (pu) node[pos=0.5, above, sloped] {$d_G(u,p_j(u))$};
+  \draw (u) -- (v) node[pos=0.5, below, sloped] {$d_G(u,v))$};
+  \draw (v) -- (pv) node[pos=0.5, below, sloped] {$d_G(v, p_{j+1}(v)$};
+  \draw[dotted] (v) -- (pu) node[pos=0.7, below, sloped] {$d_G(v, p_{j}(u)$};
+\end{tikzpicture}
