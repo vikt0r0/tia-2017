@@ -102,34 +102,59 @@ every legend to name picture/.style={west}
 \pagebreak
 
 \section{Overview}
-Given an undirected graph $G$ with non-negative edge weights, $m$ edges, $n$ vertices and some $k \in \mathbb{Z} \geq 2$, Thorup and Zwick showed that a $(2k-1)$-approximate distance oracle for $G$ of size $O(kn^{1+1/k})$ and $O(k)$ query time can be constructed in $kmn^{1/k}$ expected time \cite{Thorup2005}. \cite{Wulff2013} improves this query time to $\lg k$, while preserving stretch, space and preprocessing time. % Specifically $O( \min \left\{ kmn^{1/k}, \sqrt{k}m+kn^{1+c/\sqrt{k}} \right\})$ time for some constant $c$.
+Given an undirected graph $G$ with non-negative edge weights, $m$ edges, $n$ vertices and some $k \in \mathbb{Z} \geq 2$, Thorup and Zwick showed that a $(2k-1)$-approximate distance oracle for $G$ of size $O(kn^{1+1/k})$ and $O(k)$ query time can be constructed in $O(kmn^{1/k})$ expected time \cite{Thorup2005}. \cite{Wulff2013} improves this query time to $\lg k$, while preserving stretch, space and preprocessing time. % Specifically $O( \min \left\{ kmn^{1/k}, \sqrt{k}m+kn^{1+c/\sqrt{k}} \right\})$ time for some constant $c$.
 
-The reduction in query time is accomplished by performing binary search on the bunch structures described in \cite{Thorup2005} by uniquely determining at which level the bunch 
+The query time reduction is made possible by observing that binary search can be performed on the iteration sequence of the $dist_k(u)$ algorithm described in \cite{Thorup2005}. This is done by precomputing a secondary data structures $\mathcal{T}_u$ for each $u \in V$ in $O(k)$ time. Each $\mathcal{T}_u$ contains information about which subsequences of $0, \hdots, k-1$ that make the modified $dist_k(u,i)$ algorithm (see Alg. \ref{alg:distk}) terminate while maintaining a  stretch of $(2k-1)$. Such subsequences are called $(u,v)$-feasible. Specifically, the subsequences in $T_u$ are \textit{canonical}. $(u,v)$-feasibility and canonicity is defined and discussed in 3.
+
 % Assumptions about the reader
 
-% Reference til Mikkel/Zwick paper - hans query time og 'vores' forbedrede query time - forbedring af konstruktion. Forbedring i querytime, uden at det påvirker space/konstruktionstid.
-
-% Motivation
-
-% Girth Conjecture?
-
 \section{Definitions}
-The following definitions are taken directly from \cite{Thorup2005} and \cite{Wulff2013} and are used throughout this project.
+The following definitions taken directly from \cite{Thorup2005} and \cite{Wulff2013} are used throughout this project and are listed here for brevity and coherency:
 \begin{itemize}
 \item $d_{G}(u,v)$: the shortest path distance between $u$ and $v$.
 \item $A_i = \left\{ a \in A_{i-1} \; | \; a \text{ sampled with prob. } n^{-1/k} \text{ uniformly, i.i.d.} \right\}$
-\item $V = A_0 \supseteq A_1 \supseteq \hdots \supseteq A_k = \emptyset$
+\item $(V = A_0) \supseteq A_1 \supseteq \hdots \supseteq (A_k = \emptyset)$
 \item $p_i(u) = \min_{v \in A_i} \left\{ d_{G}(u,v) \right\}$
 \item $B_u=\bigcup_{i=0}^{k-1}\left\{ v \in A_i - A_{i+1} \; | \; d_{G}(u,v) < d_{G}(u, p_{i+1}(u)) \right\}$, the bunch of $u$.
 \item $d_G(u,p_k(u))=\infty$
 \end{itemize}
-Thorup and Zwick showed that
+Thorup and Zwick showed the property about bunches seen in Lemma \ref{lem:onedeltaperiteration}. The lemma is visualized in Fig. \ref{fig:lemma1vis}, and follows from the definitions of bunches. That $A_{k-1} \subset B_u$ and $p_{k-1}(v) \in B_u$ also readily follows from the definition of $A_{k}$ and $d_G(u,p_k(u))$ shown above:
 \\
 \begin{lem}
 Let $u,v \in V$ be distinct vertices $0 \leq i < k-1$. If $p_i(v) \not\in B_{u}$ then $d_G(u, p_{i+1}(u)) \leq d_G(u, p_i(v))$. Furthermore $A_{k-1} \subset B_u$ and $p_{k-1}(v) \in B_u$. \label{lem:onedeltaperiteration}
 \end{lem}
+This lemma is readily used for bounding $d_G(u,v)$ by successively applying the triangle inequality at each iteration of $dist_k(u,v)$ to arrive at the $(2k-1)$-stretch bound in \cite{Thorup2005}.
+
+\begin{figure}[!hbt]
+\centering
+    \includegraphics[width=0.5\textwidth]{include/tikz/lemma1.tikz}%
+\caption{Visualization of Lemma \ref{lem:onedeltaperiteration}. The dotted green path corresponds to the circle defined by $u$ and the radii $d_G(p_i(u))$, which $p_{i+1}(v)$ is clearly outside. \label{fig:lemma1vis}}
+\end{figure}
 
 \section{Oracle with $O(\lg k)$ query time}
+As aforementioned, binary search on the iteration sequence of the Thorup-Zwick oracle is performed to drive down the query time to $\lg k$. Starting with the iteration sequence $\mathcal{I}=1,\hdots,k-1$, the idea is to identify $r=O(\lg k)$ subsequences $(\mathcal{I}_1=\mathcal{I}) \supset \mathcal{I}_1 \supset \hdots \supset \mathcal{I}_r$, where for $2 \leq j \leq t$ we have $|\mathcal{I}_{j-1}| \geq 2|\mathcal{I}_j|$. We wish to maintain the invariant that $dist_k(u,v,i)$ applied to the first element of any subsequence $\mathcal{I}_j$ outputs the stretch $(2k-1)$ estimate in $|\mathcal{\mathcal{I}_j}|$ time.
+\\
+\begin{defi}
+For vertices $u,v \in V$ an index $j \in \mathcal{I}$ is $(u,v)$-terminal if
+\begin{enumerate}
+\item $j = k-1$ or
+\item $j < k-1$ is even and $p_j(u) \in B_v$ or $p_{j+1}(v) \in B_u$ 
+\end{enumerate}
+We note that $j$ attains a $(u,v)$ terminal index, the algorithm terminates in the current or next iteration. \label{def:uvterm}
+\end{defi}
+The definition of $(u,v)$-terminality captures the essence of when $dist_k(u,v)$ terminates, i.e. when $p_j(u) \in B_v$. This happens either when 1) $j=k-1$, in which case, trivially, $p_{k-1}(u) \in B_v$ or 2) when $j < k-1$ is even and $p_j(u) \in B_v$ or $p_{j+1}(v) \in B_u$ (in this case $dist_k(u,v)$ terminates either in iteration $j$ or $j+1$), see Alg. \ref{alg:distk}.
+\\
+\begin{defi}
+A subsequence $\mathcal{I'}=i_1, \hdots, i_2$ of $\mathcal{I}$ is $(u,v)$-feasible if
+\begin{enumerate}
+\item $i_1$ is even and
+\item $d_{G}(p_{i_1}(u),u) \leq i_1 \cdot d_G(u,v)$ and
+\item $i_2$ is $(u,v)$-terminal
+\end{enumerate}
+\label{def:uvfeas}
+\end{defi}
+Furthermore, the definition of $(u,v)$-feasibility 
+
 \begin{Walgo}[ht]{20pt}
   \DontPrintSemicolon
   \SetKwRepeat{Do}{do}{while}
@@ -150,26 +175,34 @@ Let $u,v \in V$ be distinct vertices $0 \leq i < k-1$. If $p_i(v) \not\in B_{u}$
     \Return{$d_G(w,u) + d_G(w,v)$}
     
     \caption{$dist_k(u,v,i)$}
-    \label{alg:0.1}
+    \label{alg:distk}
 \end{Walgo}
 
-\begin{defi}
-For vertices $u,v \in V$ an index $j \in \mathcal{I}$ is $(u,v)$-terminal if
-\begin{enumerate}
-\item $j = k-1$ or
-\item $j < k-1$ is even and $p_j(u) \in B_v$ or $p_{j+1}(v) \in B_u$ 
-\end{enumerate}
-We note that $j$ attains a $(u,v)$ terminal index, the algorithm terminates in the current or next iteration.
-\end{defi}
-
-\begin{defi}
-A subsequence $\mathcal{I'}=i_1, \hdots, i_2$ of $\mathcal{I}$ is $(u,v)$-feasible if
-\begin{enumerate}
-\item $i_1$ is even and
-\item $d_{G}(p_{i_1}(u),u) \leq i_1 \cdot d_G(u,v)$ and
-\item $i_2$ is $(u,v)$-terminal
-\end{enumerate}
-\end{defi}
+\begin{Walgo}[ht]{20pt}
+  \DontPrintSemicolon
+  \SetKwRepeat{Do}{do}{while}
+  \SetKwInOut{Input}{Input}
+  \SetKwInOut{Output}{Output}
+  \Indm
+    \Indp
+    \BlankLine
+    \If{$i_2-i_1 \leq \lg k$}{
+    	\Return{$dist_k(u,v,i_1)$}
+	}
+    
+    \textbf{let} $i$ be the middle even index $i_1,\hdots,i_2$
+    
+    \textbf{let} $i$ be the (precomputed) even index in $i_1,\hdots,i-2$ maximizing $\delta_j(u)$
+    
+    \If{$p_j(u) \not\in B_v$ \textbf{and} $p_{j+1} \not\in B_u$}{
+    	\Return{$bdist_k(u,v,i,i_2)$}
+    }
+    \Else{
+    	\Return{$bdist_k(u,v,i_1,j)$}
+    }
+    \caption{$bdist_k(u,v,i_1,i_2)$}
+    \label{alg:bdistk}
+\end{Walgo}
 
 \begin{lem}
 Let $i_1, \hdots, i_2$ be a $(u,v)$-feasible subsequence. Then $dist_k(u,v,i_1)$ gives a $2k-1$ approximation of $d_G(u,v)$ in time $O(i_2-i_1)$.
