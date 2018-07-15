@@ -4,6 +4,7 @@
 *.log
 *.synctex.gz
 *.toc
+*.out
 
 project/paper.pdf
 project/paper.bbl
